@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y unzip
 
       - name: Build project
-        run: bash scripts/build.sh
+        run: bash Scripts/build.sh
 
       - name: Upload release
         uses: softprops/action-gh-release@v1
