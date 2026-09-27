@@ -1,25 +1,15 @@
 DepotDownloaderMod
 ===============
-IMPROTANT: This Tool require a manifest file to work Due to GetManifestRequestCode Verification.
 
 Steam depot downloader utilizing the SteamKit2 library with depot keys support and many other features. Supports .NET 9.0  
-
-Works with keys from SteamTools:  
-
-https://bbs.steamtools.net/forum.php?mod=viewthread&tid=44&highlight=%E5%A4%A7%E5%AE%B6  
-https://bbs.steamtools.net/forum.php?mod=viewthread&tid=16&highlight=%E5%A4%A7%E5%AE%B6  
-
-* Update: Added `Scripts\storage_depotdownloadermod.py` to generate a bat file to download with depot keys and manifests from Many depot libraries.
-
-* Update: You can decrypt the latest manifest in [https://youxiou.com/thread-3.htm](https://youxiou.com/thread-3.htm)
 
 ### Downloading one or all depots for an app with depot keys and manifest file
 
 ```(text)
-dotnet DepotDownloader.dll -app <id> -depotkeys <depotkeysfile> [-depot <id> [-manifest <id>]] -manifestfile <manifestfile>
+dotnet DepotDownloader.dll -app <id> [-depot <id> [-manifest <id>]]
 ```
 
-For example: `dotnet DepotDownloader.dll -app 730 -depot 731 -manifest 7617088375292372759 -depotkeys steam.keys -apptoken 1234567890123456789 -manifestfile 730_7617088375292372759.manifest`
+For example: `dotnet DepotDownloader.dll -app 730 -depot 731 -manifest 7617088375292372759`
 
 By default it will use anonymous account ([view which apps are available on it here](https://steamdb.info/sub/17906/)).
 

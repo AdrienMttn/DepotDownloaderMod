@@ -1,9 +1,0 @@
-aiofiles
-colorama
-colorlog
-httpx
-rich
-ujson
-vdf
-steamclient
-cryptography
