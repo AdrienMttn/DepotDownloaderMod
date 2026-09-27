@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using SteamKit2;
 using SteamKit2.CDN;
+using SteamKit2.Internal;
+using static QRCoder.PayloadGenerator;
 
 namespace DepotDownloader
 {
@@ -146,9 +149,8 @@ namespace DepotDownloader
                     Console.WriteLine("Warning: Unable to load filelist: {0}", ex);
                 }
             }
-            
-            string depotKeysList = GetParameter<string>(args, "-depotkeys");
 
+            string depotKeysList = GetParameter<string>(args, "-depotkeys");
 
             if (depotKeysList != null)
             {
@@ -158,12 +160,37 @@ namespace DepotDownloader
                     string[] lines = depotKeysListData.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
                     DepotKeyStore.AddAll(lines);
-                    
+
                     Console.WriteLine("Using depot keys from '{0}'.", depotKeysList);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Warning: Unable to load filelist: {0}", ex.ToString());
+                }
+            }
+            else
+            {
+                try
+                {
+                    // https://manifest.steam.run/api/manifest/1333182201449228120
+                    // https://gmrc.wudrm.com/manifest/1333182201449228120
+                    // Fetch API to get depotkeys.json
+                    using var client = new HttpClient();
+                    string depotKeysJson = "https://api.993499094.xyz/depotkeys.json";
+                    HttpResponseMessage response = await client.GetAsync(depotKeysJson);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string json = await response.Content.ReadAsStringAsync();
+                        DepotKeyStore.AddAll(DepotKeyStore.JsonToArrayString(json));
+                    }
+                    else
+                    {
+                        throw new FormatException($"Failed to fetch data. Status code: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Warning: ", ex.ToString());
                 }
             }
 

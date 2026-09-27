@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+
 
 namespace DepotDownloader
 {
@@ -23,6 +25,23 @@ namespace DepotDownloader
                 }
 
                 depotKeysCache.Add(uint.Parse(split[0]), StringToByteArray(split[1]));
+            }
+        }
+
+        public static string[] JsonToArrayString(string json)
+        {
+            try
+            {
+                var rows = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                string[] res = new string[rows.Count];
+                int i = 0;
+                foreach (var (key, val) in rows) {
+                    res[i++] = $"{key};{val}";
+                }
+                return res;
+            }
+            catch (JsonException) {
+                throw new FormatException($"Error when parsing DepotKeys.json");
             }
         }
 

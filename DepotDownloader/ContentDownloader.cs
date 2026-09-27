@@ -8,15 +8,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using SteamKit2;
 using SteamKit2.CDN;
+using SteamKit2.Internal;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DepotDownloader
 {
     class ContentDownloaderException(string value) : Exception(value)
     {
+    }
+
+    public class Response
+    {
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
     }
 
     static class ContentDownloader
@@ -585,6 +596,7 @@ namespace DepotDownloader
             }
 
             byte[] depotKey = null;
+
             if (DepotKeyStore.ContainsKey(depotId))
             {
                 depotKey = DepotKeyStore.Get(depotId);
@@ -798,6 +810,25 @@ namespace DepotDownloader
                                     depot.AppId,
                                     depot.ManifestId,
                                     depot.Branch);
+                                // fallback
+                                if (manifestRequestCode == 0)
+                                {
+                                    using var client = new HttpClient();
+                                    string manifestRequestCodeUrl = $"https://manifest.steam.run/api/manifest/{depot.ManifestId}";
+                                    Console.WriteLine($"Game not owned — attempting to retrieve the manifest request code using: {manifestRequestCodeUrl}");
+                                    HttpResponseMessage response = await client.GetAsync(manifestRequestCodeUrl);
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        string json = await response.Content.ReadAsStringAsync();
+                                        Response product = JsonSerializer.Deserialize<Response>(json)!;
+                                        manifestRequestCode = ulong.Parse(product.Content);
+                                        Console.WriteLine($"Manifest code retrieved successfully : {manifestRequestCode}");
+                                    }
+                                    else
+                                    {
+                                        throw new FormatException($"Failed to fetch data for url : {manifestRequestCodeUrl}. Status code: {response.StatusCode}");
+                                    }
+                                }
                                 // This code will hopefully be valid for one period following the issuing period
                                 manifestRequestCodeExpiration = now.Add(TimeSpan.FromMinutes(5));
 
