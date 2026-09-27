@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -e
+set -e
 
 # Restore dependencies
 cd DepotDownloader
@@ -13,5 +13,5 @@ dotnet publish -c Release -o publish/
 
 # Create release archive
 cd publish
-zip -r ../DepotDownloaderMod.zip .
+zip -r ../../DepotDownloaderMod.zip .
 cd ..
