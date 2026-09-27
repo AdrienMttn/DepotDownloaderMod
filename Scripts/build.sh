@@ -2,7 +2,7 @@
 # set -e
 
 # Restore dependencies
-cd ../DepotDownloader
+cd DepotDownloader
 dotnet restore
 # Build in Release mode
 dotnet build -c Release
